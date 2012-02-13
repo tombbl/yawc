@@ -1,0 +1,10 @@
+v0.1
+1. Wczytaj stronę.
+2. Adres strony pobierz z wiersza poleceń (argument podawany przy wywołaniu).
+3. Wyświetl wszystkie linki dostępne na stronie w formacie: tekst linku => adres linku.
+   Jeśli link nie ma tekstu, ani tekstu alternatywnego, wyświetl ciąg NO_TEXT_LINK.
+4. Wyświetl podsumowanie na końcu listy: 
+   o ile linków łącznie
+   o ile linków typu NO_TEXT_LINK
+   o ile łącz prowadzi do innych stron,
+   o ile łącz w obrębie analizowanej strony.

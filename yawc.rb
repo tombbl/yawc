@@ -6,7 +6,7 @@ def stats(links)
   number_of_links = 0
   number_of_no_text_links = 0
   number_of_foreign_page_links = 0
-  links.each { |link| 
+  links.each { |link|
     number_of_links += 1
     number_of_no_text_links += 1 if link.text == ''
     number_of_foreign_page_links += 1 if true
@@ -30,26 +30,26 @@ def print_stats(statistics)
   puts "Number of outside pages links: #{statistics[2]}"
 end
 
-options = {}
-optparse = OptionParser.new do |opts|
-  # Set a banner displayed at the top
-  # of the help screen
-  opts.banner = "Usage: yawc.rb [options] URI to extract links from"
+#options = {}
+#optparse = OptionParser.new do |opts|
+  ## Set a banner displayed at the top
+  ## of the help screen
+  #opts.banner = "Usage: yawc.rb [options] URI to extract links from"
 
-  # Define the options and what they do
-  options[:outputfile] = false
-  opts.on( '-o', '--output-file', 'Print output into the given file' ) do
-    options[:outputfile] = true
-  end
+  ## Define the options and what they do
+  #options[:outputfile] = false
+  #opts.on( '-o', '--output-file', 'Print output into the given file' ) do
+    #options[:outputfile] = true
+  #end
 
-  # This displays the help screen
-  opts.on( '-h', '--help', 'Displays this help' ) do
-    puts opts
-    exit
-  end
-end
+  ## This displays the help screen
+  #opts.on( '-h', '--help', 'Displays this help' ) do
+    #puts opts
+    #exit
+  #end
+#end
 
-optparse.parse!
+#optparse.parse!
 
 if ARGV[0] != nil
   agent = Mechanize.new

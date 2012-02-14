@@ -1,0 +1,80 @@
+
+
+times in msec
+ clock   self+sourced   self:  sourced script
+ clock   elapsed:              other lines
+
+000.022  000.022: --- VIM STARTING ---
+000.366  000.344: Allocated generic buffers
+000.704  000.338: locale set
+000.763  000.059: GUI prepared
+000.770  000.007: clipboard setup
+000.794  000.024: window checked
+012.299  011.505: inits 1
+012.485  000.186: parsing arguments
+012.490  000.005: expanding arguments
+012.537  000.047: shell init
+013.486  000.949: xsmp init
+016.847  003.361: Termcap init
+017.078  000.231: inits 2
+017.498  000.420: init highlight
+018.327  000.406  000.406: sourcing /usr/share/vim/vimfiles/archlinux.vim
+018.446  000.757  000.351: sourcing /etc/vimrc
+020.016  001.271  001.271: sourcing /home/tomba/.vim/autoload/pathogen.vim
+096.912  003.281  003.281: sourcing /home/tomba/.vim/ftdetect/ruby.vim
+097.609  000.270  000.270: sourcing /usr/share/vim/vimfiles/ftdetect/augeas.vim
+098.150  073.415  069.864: sourcing /usr/share/vim/vim73/filetype.vim
+098.578  000.150  000.150: sourcing /usr/share/vim/vim73/ftplugin.vim
+098.927  000.130  000.130: sourcing /usr/share/vim/vim73/indent.vim
+099.709  000.289  000.289: sourcing /home/tomba/.vim/compiler/ruby.vim
+099.994  000.073  000.073: sourcing /usr/share/vim/vim73/compiler/ruby.vim
+101.964  000.993  000.993: sourcing /usr/share/vim/vim73/syntax/syncolor.vim
+102.397  001.702  000.709: sourcing /usr/share/vim/vim73/syntax/synload.vim
+102.535  002.119  000.417: sourcing /usr/share/vim/vim73/syntax/syntax.vim
+104.244  000.754  000.754: sourcing /usr/share/vim/vim73/syntax/syncolor.vim
+105.799  000.782  000.782: sourcing /usr/share/vim/vim73/syntax/syncolor.vim
+112.382  009.574  008.038: sourcing /home/tomba/.vim/colors/vividchalk.vim
+112.932  094.311  007.290: sourcing $HOME/.vimrc
+112.960  000.394: sourcing vimrc file(s)
+157.423  044.109  044.109: sourcing /home/tomba/.vim/bundle/nerdcommenter/plugin/NERD_commenter.vim
+212.138  000.397  000.397: sourcing /home/tomba/.vim/bundle/nerdtree/nerdtree_plugin/exec_menuitem.vim
+213.779  001.520  001.520: sourcing /home/tomba/.vim/bundle/nerdtree/nerdtree_plugin/fs_menu.vim
+214.148  056.350  054.433: sourcing /home/tomba/.vim/bundle/nerdtree/plugin/NERD_tree.vim
+217.508  003.100  003.100: sourcing /home/tomba/.vim/bundle/supertab/plugin/supertab.vim
+220.345  002.456  002.456: sourcing /home/tomba/.vim/bundle/taglist/plugin/taglist.vim
+221.437  000.340  000.340: sourcing /usr/share/vim/vim73/plugin/getscriptPlugin.vim
+222.702  001.157  001.157: sourcing /usr/share/vim/vim73/plugin/gzip.vim
+223.589  000.703  000.703: sourcing /usr/share/vim/vim73/plugin/matchparen.vim
+226.042  002.346  002.346: sourcing /usr/share/vim/vim73/plugin/netrwPlugin.vim
+226.395  000.161  000.161: sourcing /usr/share/vim/vim73/plugin/rrhelper.vim
+226.630  000.135  000.135: sourcing /usr/share/vim/vim73/plugin/spellfile.vim
+227.653  000.912  000.912: sourcing /usr/share/vim/vim73/plugin/tarPlugin.vim
+228.133  000.298  000.298: sourcing /usr/share/vim/vim73/plugin/tohtml.vim
+228.941  000.705  000.705: sourcing /usr/share/vim/vim73/plugin/vimballPlugin.vim
+229.973  000.768  000.768: sourcing /usr/share/vim/vim73/plugin/zipPlugin.vim
+230.131  003.631: loading plugins
+233.642  003.511: inits 3
+234.209  000.567: reading viminfo
+244.299  010.090: setup clipboard
+244.396  000.097: setting raw mode
+244.427  000.031: start termcap
+244.499  000.072: clearing screen
+332.893  084.279  084.279: sourcing /home/tomba/.vim/ftplugin/ruby.vim
+333.782  000.145  000.145: sourcing /usr/share/vim/vim73/ftplugin/ruby.vim
+336.091  001.360  001.360: sourcing /home/tomba/.vim/indent/ruby.vim
+336.387  000.057  000.057: sourcing /usr/share/vim/vim73/indent/ruby.vim
+347.426  010.549  010.549: sourcing /home/tomba/.vim/syntax/ruby.vim
+347.967  000.071  000.071: sourcing /usr/share/vim/vim73/syntax/ruby.vim
+352.458  002.413  002.413: sourcing /home/tomba/.vim/ftplugin/ruby.vim
+353.160  000.053  000.053: sourcing /usr/share/vim/vim73/ftplugin/ruby.vim
+354.132  000.137  000.137: sourcing /home/tomba/.vim/indent/ruby.vim
+354.390  000.047  000.047: sourcing /usr/share/vim/vim73/indent/ruby.vim
+365.408  010.314  010.314: sourcing /home/tomba/.vim/syntax/ruby.vim
+365.969  000.056  000.056: sourcing /usr/share/vim/vim73/syntax/ruby.vim
+366.820  012.840: opening buffers
+367.285  000.465: BufEnter autocommands
+367.299  000.014: editing files in windows
+368.078  000.779: VimEnter autocommands
+368.088  000.010: before starting main loop
+409.219  041.131: first screen update
+409.230  000.011: --- VIM STARTED ---

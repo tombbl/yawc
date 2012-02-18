@@ -1,68 +1,71 @@
 #!/usr/bin/env ruby
 require 'mechanize'
-require 'optparse'
+require 'colorize'
 
-def stats(links)
-  number_of_links = 0
-  number_of_no_text_links = 0
-  number_of_foreign_page_links = 0
-  links.each { |link|
-    number_of_links += 1
-    number_of_no_text_links += 1 if link.text == ''
-    number_of_foreign_page_links += 1 if true
-  }
-  return number_of_links, number_of_no_text_links, number_of_foreign_page_links
-end
+depth = 1
 
-def print_the_links(links)
-  count = 1
-  links.each do |link|
-    print count.to_s + ") Tekst: "
-    print (link.text == '' ? "NO_TEXT_LINK" : link.text) + "\n"
-    print "Adres: #{link.uri}\n\n"
-    count += 1
-  end
-end
-
-def print_stats(statistics)
-  puts "Total number of links: #{statistics[0]}"
-  puts "Number of links without text: #{statistics[1]}"
-  puts "Number of outside pages links: #{statistics[2]}"
-end
-
-#options = {}
-#optparse = OptionParser.new do |opts|
-  ## Set a banner displayed at the top
-  ## of the help screen
-  #opts.banner = "Usage: yawc.rb [options] URI to extract links from"
-
-  ## Define the options and what they do
-  #options[:outputfile] = false
-  #opts.on( '-o', '--output-file', 'Print output into the given file' ) do
-    #options[:outputfile] = true
-  #end
-
-  ## This displays the help screen
-  #opts.on( '-h', '--help', 'Displays this help' ) do
-    #puts opts
-    #exit
-  #end
-#end
-
-#optparse.parse!
-
-if ARGV[0] != nil
+if ARGV.empty? == false
   agent = Mechanize.new
   agent.user_agent_alias = 'Linux Mozilla'
 
-  begin
-    page = agent.get(URI(ARGV[0]))
-    links = page.links.clone
-    print_the_links(links)
-    print_stats(stats(links))
-  rescue Mechanize::ResponseReadError => e
-    page = e.force_parse
+  page = agent.get(URI.parse(ARGV[0]))
+  links = page.links
+  uri_links = links.map {|link| link.href}
+  puts "Found #{links.length} links on #{ARGV[0]}.".green
+  puts "I will try visiting every link now...\n".green
+
+  counter = 1
+  links_visited = 0
+  links_not_active = 0
+
+  links.each do |link|
+    begin
+      if agent.visited?(link.uri) == nil && link.uri.host == URI.parse(ARGV[0]).host
+        print "#{counter}/#{links.count})".blue + " Visiting site: #{link.href}"
+        begin
+          new_page = link.click
+          print '. '
+          new_links = new_page.links
+          print "This site includes #{new_links.count.to_s} links."
+
+          new_unique_links = []
+          new_links.each do |new_link|
+            new_unique_links.push(new_link) unless uri_links.include?(new_link.href)
+          end
+          color = new_unique_links.length == new_links.length ? :yellow : :green
+          puts " Adding #{new_unique_links.length} new links to the links array.".colorize(color)
+          new_unique_links.each { |new_unique_link| links << new_unique_link; uri_links << new_unique_link.href} if new_unique_links.length > 0
+
+        rescue Mechanize::ResponseCodeError => e
+          print "#{link.uri} - The page does not respond. Skipping...\n".red
+          links_not_active += 1
+        rescue NoMethodError => e
+          print "#{link.uri} - Method not supported. Skipping...\n".red
+        rescue OpenSSL::SSL::SSLError => e
+          print "#{link.uri} - SSL Error occured. Skipping...\n".red
+        rescue SocketError => e
+          print "#{link.uri} - Socket error occured. Skipping...\n".red
+        rescue URI::InvalidURIError => e
+          print "#{link.uri} - Invalid URI error. Skipping...\n".red
+        rescue Encoding::CompatibilityError => e
+          print "#{link.uri} - Compatibility error. Skipping...\n".red
+        end
+      else
+        print "#{counter}/#{links.count})".blue + " I already visited the page >#{link.href}<. Skipping...\n".red
+        links_visited += 1
+      end
+      counter += 1
+    rescue Mechanize::UnsupportedSchemeError => e
+      puts "#{counter}/#{links.count}) ".blue + "The requested protocol is not supported by Mechanize. Skipping link => #{link.href}...".red
+      counter += 1
+    rescue Encoding::CompatibilityError => e
+      puts "#{counter}/#{links.count}) ".blue + "#{link.href} - Compatibility error. Skipping...".red
+    rescue URI::InvalidURIError => e
+      puts "#{counter}/#{links.count}) ".blue + "#{link.href} - Invalid URI error. Skipping...".red
+    end
   end
+  puts "Number of doubled links: #{links_visited}".yellow
+  puts "Number of broken links: #{links_not_active}".yellow
 else
-  puts optparse.banner
+  puts 'Please, type in address of the web site you want to crawl.'
 end

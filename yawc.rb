@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
+$LOAD_PATH << '.'
 require 'mechanize'
 require 'colorize'
+require 'array_extension'
 
 # sets the depth of scanning
 # 0 - no limits
@@ -8,55 +10,6 @@ require 'colorize'
 # 2 - the given domain and the whole external domain found as the first during scanning
 # 3 - etc.
 depth = 1
-
-class Array
-  def unique_links()
-    # Clone the given ary
-    links_clone = links.clone
-
-    # Check href field of every link of the cloned ary with all elements in original ary.
-    # If in original ary you find links with the same href field, put the links into another, newly created ary.
-    links_clone.each do |link_clone|
-      links_to_delete = Array.new
-      links.each {|link| links_to_delete << link if link.href == link_clone.href}
-      unless links_to_delete.empty?
-        # Pop one of the collected links (if we don't do it, we'd delete all the links, which have the same href).
-        # If there's not nil in return, go through links_to_delete and delete the links from original links ary.
-        links_to_delete.each {|link_to_delete| links.delete(link_to_delete)} if links_to_delete.pop != nil
-      end
-    end
-    links
-  end
-end
-
-def leave_only_unique_links(links)
-  # Clone the given ary
-  links_clone = links.clone
-  
-  # Check href field of every link of the cloned ary with all elements in original ary.
-  # If in original ary you find links with the same href field, put the links into another, newly created ary.
-  links_clone.each do |link_clone|
-    links_to_delete = Array.new
-    links.each {|link| links_to_delete << link if link.href == link_clone.href}
-    unless links_to_delete.empty?
-      # Pop one of the collected links (if we don't do it, we'd delete all the links, which have the same href).
-      # If there's not nil in return, go through links_to_delete and delete the links from original links ary.
-      links_to_delete.each {|link_to_delete| links.delete(link_to_delete)} if links_to_delete.pop != nil
-    end
-  end
-  links
-end
-
-def check_uniqueness_between_arrays(links, newlinks)
-  new_links = newlinks.clone
-  new_links_to_delete = Array.new
-  new_links.each {|new_link|
-    links.each {|link| new_links_to_delete << new_link if new_link.href == link.href}
-  }
-  new_links_to_delete.each {|link_to_delete| new_links.delete(link_to_delete)} unless new_links_to_delete.empty?
-
-  new_links
-end
 
 if ARGV.empty? == false
   agent = Mechanize.new
@@ -67,7 +20,7 @@ if ARGV.empty? == false
   puts "Found #{links.count} links on #{ARGV[0]}".green
   print 'Removing multiple links... '.green
 
-  links = leave_only_unique_links(links)
+  links.unique!
 
   puts "#{links.count} links left.".green
   puts "Start visiting the links...\n".green
@@ -86,13 +39,14 @@ if ARGV.empty? == false
           new_links = new_page.links
           print "This site includes #{new_links.count} links."
 
-          new_unique_links = leave_only_unique_links(new_links)
-          verified_new_links = check_uniqueness_between_arrays(links, new_unique_links)
-          verified_new_links.compact!
-          color = verified_new_links.count == new_links.count ? :yellow : :green
-          puts " Adding #{verified_new_links.count} new links to the links array.".colorize(color)
+          new_links_count = new_links.count
+          new_links.unique!
+          new_links.unique_with(links)
 
-          verified_new_links.each {|new_link| links << new_link} if verified_new_links.count > 0
+          color = new_links_count == new_links.count ? :yellow : :green
+          puts " Adding #{new_links.count} new links to the links array.".colorize(color)
+
+          new_links.each {|new_link| links << new_link} if new_links.count > 0
 
         rescue Mechanize::ResponseCodeError => e
           print "#{link.uri} - The page does not respond. Skipping...\n".red

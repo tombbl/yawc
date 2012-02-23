@@ -1,0 +1,8 @@
+h1. yawc is yet another web crawler
+
+*yawc* is a ruby script which uses "Mechanize":http://mechanize.rubyforge.org to crawl the sites.
+There are still plenty of things to do to make it more robust.
+
+At this moment it works stable. And that is its main advantage :-)
+
+*yawc* uses OptionParser library and can inform you of the acceptable input switches.

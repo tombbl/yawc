@@ -4,9 +4,9 @@ require 'optparse'
 require 'mechanize'
 require 'colorize'
 require 'array_extension'
+require 'addressable/uri'
 
 class ArgsParser
-
   def parse(args)
     # The options specified on the command line will be collected in *options*.
     # We set default values here.
@@ -17,7 +17,7 @@ class ArgsParser
       # of the help screen
       opt.banner = "Usage: yawc.rb [options] URI to extract links from"
 
-      opt.on('-o FILEPATH', '--output-file', 'Log the output into the given file') do |filepath|
+      opt.on('-o filepath', '--output-file', 'Save the scraped links in file') do |filepath|
         @options[:outputfile] = filepath
       end
 
@@ -33,7 +33,6 @@ class ArgsParser
     end
 
     @opts.parse!(args)
-    @options
   end
 
   def initialize(args)
@@ -47,75 +46,81 @@ class ArgsParser
   end
 end
 
-
 class Spider
-
   def initialize(url)
+    @visited_uri_collection = Array.new
     @agent = Mechanize.new
     @agent.user_agent_alias = 'Linux Mozilla'
 
-    scrape(url)
+    read_start_page(url)
   end
 
-  def scrape(url)
-    @page = @agent.get(URI.parse(url))
-    @links = @page.links
+  def read_start_page(url)
+    puts "Now reading the url given..."
+    page = @agent.get(URI.parse(url))
+    links = page.links
 
-    unless @links.empty?
-      print "Found #{@links.count} links on #{url}. ".green
+    unless links.empty?
+      print "Found #{links.count} links on #{url}. ".green
       print 'Removing multiple links... '.green
-      @links.unique!
-      print "#{@links.count} links left. \n".green
+      links.unique!
+      print "#{links.count} links left. \n".green
 
       print "Start visiting the pages... \n".green
-      visit_pages(@links.clone)
+      visit_pages(links.clone)
     end
   end
 
   def visit_pages(links)
     links.each_index do |index|
+      trap("SIGINT") {
+        puts "\nCtrl+c caught => exiting.".blue.on_yellow; 
+        puts "Collected links:".yellow
+        puts @visited_uri_collection
+        exit!
+      }
+
       link = links[index]
       begin
-        if @agent.visited?(link.uri) == nil
-          print "#{index}/#{links.count})".light_blue + " Visiting site: #{link.href}"
+        unless @agent.visited?(link.uri)
+          print "#{index}/#{links.count})".light_blue + " Visiting #{link.href} ... ".light_blue
           begin
             new_page = link.click
-            print '. '
             new_links = new_page.links
-            print "This site includes #{new_links.count} links."
+            @visited_uri_collection.push(link.uri)
+            print "Found #{new_links.count} links ".yellow
 
-            new_links_count = new_links.count
             new_links.unique!
-            new_links.unique_with(links)
+            new_links.unique_with!(links)
 
-            color = new_links_count == new_links.count ? :yellow : :green
-            puts " Adding #{new_links.count} new links to the links array.".colorize(color)
+            puts "=> #{new_links.count} unique.".green
 
-            new_links.each {|new_link| links << new_link} if new_links.count > 0
+            links.concat(new_links) if new_links.count > 0
 
           rescue Mechanize::ResponseCodeError => e
-            print "#{link.uri} - The page does not respond. Skipping...\n".red
-            links_not_active += 1
+            print "Mechanize::ResponseCodeError. Skipping...\n".red
           rescue NoMethodError => e
-            print "#{link.uri} - Method not supported. Skipping...\n".red
+            print "NoMethodError. Skipping...\n".red
           rescue OpenSSL::SSL::SSLError => e
-            print "#{link.uri} - SSL Error occured. Skipping...\n".red
+            print "OpenSSL::SSL::SSLError. Skipping...\n".red
           rescue SocketError => e
-            print "#{link.uri} - Socket error occured. Skipping...\n".red
+            print "SocketError. Skipping...\n".red
           rescue URI::InvalidURIError => e
-            print "#{link.uri} - Invalid URI error. Skipping...\n".red
+            print "URI::InvalidURIError. Skipping...\n".red
           rescue Encoding::CompatibilityError => e
-            print "#{link.uri} - Compatibility error. Skipping...\n".red
+            print "Encoding::CompatibilityError. Skipping...\n".red
+          rescue Net::HTTP::Persistent::Error => e
+            print "Net::HTTP::Persistent::Error. Skipping...\n".red
           end
         else
-          print "#{index}/#{links.count})".light_blue + " I already visited the page >#{link.href}<. Skipping...\n".red
+          print "#{index}/#{links.count}) #{link.href} visited.\n".red
         end
       rescue Mechanize::UnsupportedSchemeError => e
-        puts "#{index}/#{links.count}) ".light_blue + "The requested protocol is not supported by Mechanize. Skipping link => #{link.href}...".red
+        puts "#{index}/#{links.count}) Mechanize::UnsupportedSchemeError. #{link.href} => skipping.".red
       rescue Encoding::CompatibilityError => e
-        puts "#{index}/#{links.count}) ".light_blue + "#{link.href} - Compatibility error. Skipping...".red
+        puts "#{index}/#{links.count}) Encoding::CompatibilityError. #{link.href} => skipping.".red
       rescue URI::InvalidURIError => e
-        puts "#{index}/#{links.count}) ".light_blue + "#{link.href} - Invalid URI error. Skipping...".red
+        puts "#{index}/#{links.count}) URI::InvalidURIError. #{link.href} => skipping.".red
       end
     end
   end

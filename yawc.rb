@@ -47,6 +47,7 @@ class ArgsParser
 end
 
 class Spider
+
   def initialize(url)
     @visited_uri_collection = Array.new
     @agent = Mechanize.new
@@ -56,8 +57,8 @@ class Spider
   end
 
   def read_start_page(url)
-    puts "Now reading the url given..."
-    page = @agent.get(URI.parse(url))
+    puts "Reading the url given..."
+    page = @agent.get(Addressable::URI.parse(url))
     links = page.links
 
     unless links.empty?
@@ -66,19 +67,15 @@ class Spider
       links.unique!
       print "#{links.count} links left. \n".green
 
-      print "Start visiting the pages... \n".green
+      print "Start visiting the pages... ".green
+      print "You can finish the program in any moment hitting Ctrl+c\n\n".red
       visit_pages(links.clone)
     end
   end
 
   def visit_pages(links)
     links.each_index do |index|
-      trap("SIGINT") {
-        puts "\nCtrl+c caught => exiting.".blue.on_yellow; 
-        puts "Collected links:".yellow
-        puts @visited_uri_collection
-        exit!
-      }
+      trap("SIGINT") {terminate()}
 
       link = links[index]
       begin
@@ -87,11 +84,11 @@ class Spider
           begin
             new_page = link.click
             new_links = new_page.links
-            @visited_uri_collection.push(link.uri)
+            @visited_uri_collection.push(link.uri.relative? ? URI.join(@agent.current_page.uri, link.uri) : link.uri)
             print "Found #{new_links.count} links ".yellow
 
-            new_links.unique!
-            new_links.unique_with!(links)
+            new_links.unique! unless new_links.empty?
+            new_links.unique_with!(links) unless new_links.empty?
 
             puts "=> #{new_links.count} unique.".green
 
@@ -123,6 +120,13 @@ class Spider
         puts "#{index}/#{links.count}) URI::InvalidURIError. #{link.href} => skipping.".red
       end
     end
+  end
+
+  def terminate()
+    puts "\nCtrl+c caught => exiting.".on_blue
+    puts "Collected #{@visited_uri_collection.count} links:".yellow
+    @visited_uri_collection.each_index {|i| puts i.to_s + '. ' + @visited_uri_collection[i].to_s}
+    exit!
   end
 end
 

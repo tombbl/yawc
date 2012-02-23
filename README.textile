@@ -6,3 +6,10 @@ There are still plenty of things to do to make it more robust.
 At this moment it works stable. And that is its main advantage :-)
 
 *yawc* uses OptionParser library and can inform you of the acceptable input switches.
+
+
+h1. Changes
+
+h2. 2012-02-23
+# User can now terminate yawc in a clean manner by hitting Ctrl+c.
+# Links are now stored only in absolute form.
